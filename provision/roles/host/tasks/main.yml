@@ -1,15 +1,26 @@
+- name: Include package names
+  include_vars:
+    file: package_names.yaml
+    name: package_names
+
+- debug:
+    msg: "ansible_os_family: {{ ansible_os_family }}"
+
 - name: Install packages
   become: True
   package:
     name: '{{ item }}'
     state: present
-  with_items:
-  - python-firewall
-  - python2-winrm
-  - python3-winrm
-  - NetworkManager
-  - dnsmasq
-  - qemu-kvm
+  with_items: "{{ package_names.default }}"
+  when: ansible_os_family != "Suse"
+
+- name: Install packages
+  become: True
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items: "{{ package_names.suse }}"
+  when: ansible_os_family == "Suse"
   
 - name: Create /etc/polkit-1/rules.d/00-org.libvirt.unix.manager.rules
   become: True
@@ -19,6 +30,12 @@
     owner: root
     group: root
     mode: 0644
+
+- name: is firewalld already running?
+  shell: service firewalld status warn=false
+  register: _svc_firewalld
+  failed_when: _svc_firewalld.rc != 0 and ("unrecognized service" not in _svc_firewalld.stderr)
+  ignore_errors: true
 
 - name: Allow services needed for NFS in firewall
   become: True
@@ -30,6 +47,7 @@
   - nfs
   - rpc-bind
   - mountd
+  when: "_svc_firewalld.rc == 0"
   
 - name: Restart firewalld
   become: True
@@ -37,3 +55,4 @@
     name: firewalld.service
     enabled: yes
     state: reloaded
+  when: "_svc_firewalld.rc == 0"

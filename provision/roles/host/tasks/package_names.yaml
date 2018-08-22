@@ -1,0 +1,6 @@
+
+default:
+- [ python-firewall, python2-winrm, python3-winrm, NetworkManager, dnsmasq, qemu-kvm ]
+
+suse:
+- [ python3-firewall, python2-pywinrm, python3-pywinrm, NetworkManager, dnsmasq, qemu-kvm ]
