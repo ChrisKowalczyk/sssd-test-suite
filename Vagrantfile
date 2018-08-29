@@ -1,5 +1,17 @@
 BOX_LINUX = "fedora/27-cloud-base"
 BOX_AD    = "peru/windows-server-2016-standard-x64-eval"
+BOX_SUSE  = "hawk/leap-15.0-ha"
+
+# Return the right box accordingly with the Distro
+def ClientBox()
+  dist = ENV['DIST']
+  
+  if dist == "suse"
+    return BOX_SUSE
+  else
+    return BOX_LINUX
+  end     
+end  
 
 def Guest(guest, box, hostname, ip, memory)
   guest.vm.box = box
@@ -41,7 +53,11 @@ def LinuxGuest(box, config, name, hostname, ip, memory)
     end
 
     this.vm.provision :shell do |shell|
+      if box == BOX_SUSE
+        shell.path = "./provision/install-packages-suse.sh"
+      else
       shell.path = "./provision/install-packages.sh"
+      end   
       shell.args = name
     end
 
@@ -74,6 +90,7 @@ end
 def SetupAnsibleProvisioning(config)
   windows_settings = {
     "ansible_winrm_server_cert_validation" => "ignore",
+    # Raise these timeouts if you have problems during AD deployment.
     "ansible_winrm_operation_timeout_sec" => 60,
     "ansible_winrm_read_timeout_sec" => 70,
     "ansible_user" => "Administrator"
@@ -91,9 +108,9 @@ end
 # Currently each windows machine must be created with different box
 # so it has different SID. Otherwise we fail to create a domain controller.
 Vagrant.configure("2") do |config|
-  LinuxGuest(  "#{BOX_LINUX}", config, "ipa",      "master.ipa.vm",    "192.168.100.10",  1792)
-  LinuxGuest(  "#{BOX_LINUX}", config, "ldap",     "master.ldap.vm",   "192.168.100.20",  512)
-  LinuxGuest(  "#{BOX_LINUX}", config, "client",   "master.client.vm", "192.168.100.30",  1024)
-  WindowsGuest("#{BOX_AD}",    config, "ad",       "root",             "192.168.100.110", 1024)
-  WindowsGuest("#{BOX_AD}",    config, "ad-child", "child",            "192.168.100.120", 1024)
+  LinuxGuest(  "#{BOX_LINUX}"  , config, "ipa",      "master.ipa.vm",    "192.168.100.10",  1792)
+  LinuxGuest(  "#{BOX_LINUX}"  , config, "ldap",     "master.ldap.vm",   "192.168.100.20",  512)
+  LinuxGuest(  "#{ClientBox()}", config, "client",   "master.client.vm", "192.168.100.30",  1024)
+  WindowsGuest("#{BOX_AD}",      config, "ad",       "root",             "192.168.100.110", 1024)
+  WindowsGuest("#{BOX_AD}",      config, "ad-child", "child",            "192.168.100.120", 1024)
 end

@@ -32,6 +32,7 @@
   selinux:
     policy: targeted
     state: permissive
+  when: dist is not defined or dist != "suse"
 
 - name: 'Create /shared/enrollment/{{ inventory_hostname }} directory'
   become: True

@@ -9,3 +9,9 @@ ipa_domain: 'ipa.vm'
 
 # AD domain to which client will join
 ad_domain: 'ad.vm'
+
+# short domain
+ad_short_domain: 'ad'
+
+# AD Main server
+ad_main_server: 'root.ad.vm'
