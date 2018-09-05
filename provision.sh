@@ -3,17 +3,20 @@ INVENTORY="./.vagrant/provisioners/ansible/inventory"
 PLAYBOOKS="./provision/prepare-guests.yml"
 
 if [[ "x$1" == "x-h" || "x$1" == "x--help" ]]; then
-    echo "provision.sh [LIMIT SKIP_PACKAGES PLAYBOOKS]"
+    echo "provision.sh [DIST LIMIT SKIP_PACKAGES PLAYBOOKS DIST]"
+    echo "  DIST: [fedora|suse] ... Define what distribution will be used for the client"
     echo "  LIMIT: [all|list of host] ... limit which hosts should be provisioned"
     echo "  SKIP_PACKAGES: [true|false] ... skip package installation"
     echo "  PLAYBOOKS: [playbook paths] ... playbooks to run"
     echo ""
     exit 0
 fi
+DIST=${1-"fedora"}
+LIMIT=${2-all}
+SKIP_PACKAGES=${3-true}
+PLAYBOOKS=${4-$PLAYBOOKS}
 
-LIMIT=${1-all}
-SKIP_PACKAGES=${2-true}
-PLAYBOOKS=${3-$PLAYBOOKS}
+echo "Linux distro used for the client: $DIST"
 
 run-playbook() {
     local PLAYBOOK=$1
@@ -21,9 +24,9 @@ run-playbook() {
     echo "Executing playbook $PLAYBOOK"
 
     ANSIBLE_HOST_KEY_CHECKING="false" ANSIBLE_SSH_ARGS="$SSH_ARGS" \
-    ansible-playbook                                               \
+    ansible-playbook -v                                               \
       --limit "$LIMIT"                                             \
-      --extra-vars="skip_packages=$SKIP_PACKAGES"                  \
+      --extra-vars="skip_packages=$SKIP_PACKAGES dist=$DIST"                  \
       --inventory-file="$INVENTORY"                                \
       $PLAYBOOK
 }

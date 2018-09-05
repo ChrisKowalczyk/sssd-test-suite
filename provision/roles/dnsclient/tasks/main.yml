@@ -6,6 +6,7 @@
     owner: root
     group: root
     mode: 0644
+  when: dist is not defined or dist != "suse"  
 
 - name: Create /etc/NetworkManager/dnsmasq.d/zone_vm.dnsmasq
   become: True
@@ -16,6 +17,21 @@
     group: root
     mode: 0644
   register: result
+  when: dist is not defined or dist != "suse"
+
+- name: Create /etc/sysconfig/network/config (SUSE)
+  become: True
+  template:
+    src: suse.network.config
+    dest: /etc/sysconfig/network/config
+    owner: root
+    group: root
+    mode: 0644
+  register: result
+  when: 
+    - dist == "suse"
+    - "'client' in inventory_hostname"
+
 
 - name: Reload NetworkManager
   become: True
@@ -23,4 +39,13 @@
     name: NetworkManager.service
     enabled: yes
     state: reloaded
-  when: result.changed
+  when: result.changed and dist is not defined
+
+- name: Reload network.service (SUSE)
+  become: True
+  service:
+    name: network.service
+    enabled: yes
+    state: reloaded
+  when: result.changed and dist == "suse"
+
