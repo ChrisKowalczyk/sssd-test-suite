@@ -58,7 +58,7 @@ export SSSD_TEST_SUITE_BASHRC="/shared/workspace/my-scripts/vagrant-bashrc.sh"
 
 | Machine           |        Username         |   Password   |   Description    |
 |-------------------|-------------------------|--------------|------------------|
-| Any Linux machine | vagrant                 | vagrant      | Local user       |
+| Any machine       | vagrant                 | vagrant      | Local user       |
 | ad                | Administrator@ad.vm     | vagrant      | Domain user      |
 | ad-child          | Administrator@sub.ad.vm | vagrant      | Domain user      |
 | client            | user-1                  | 123456789    | LDAP domain user |
@@ -131,6 +131,11 @@ $ ./setup.sh
 
 **Note:** The provisioning will take a long time (approximately one hour)
 so be patient.
+
+```bash
+$ ./setup.sh suse false
+```
+Suse means that the boxes will be based on SUSE distributions. False means that the provisioning of Host machine will be skipped , so it will not be configured as DNS server.
 
 ## Usage
 
