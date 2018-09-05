@@ -59,7 +59,7 @@ export SSSD_TEST_SUITE_BASHRC="/shared/workspace/my-scripts/vagrant-bashrc.sh"
 | Machine           |        Username         |   Password   |   Description    |
 |-------------------|-------------------------|--------------|------------------|
 | Any machine       | vagrant                 | vagrant      | Local user       |
-| Any Linux machine | root                    | vagrant      | Local user       |
+| client            | root                    | vagrant      | Local user       |
 | ad                | Administrator@ad.vm     | vagrant      | Domain user      |
 | ad-child          | Administrator@sub.ad.vm | vagrant      | Domain user      |
 | client            | user-1                  | 123456789    | LDAP domain user |
